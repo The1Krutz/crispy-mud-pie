@@ -39,7 +39,38 @@ public class Grid : Resource {
     return (mapPosition / cellSize).Floor();
   }
 
-  // TODO: continue here
+  /**
+   * returns true if cellCoordinates are within the grid. This method (together with Clamp) allows us
+   * to ensure the cursor or units can never go outside the map's limits
+   */
+  public bool IsWithinBounds(Vector2 cellCoordinates) {
+    return cellCoordinates.x >= 0 && cellCoordinates.x < size.x && cellCoordinates.y >= 0 && cellCoordinates.y < size.y;
+  }
+
+  /**
+   * Clamps gridPosition to fit within the grid's boundaries. This is a clamp function designed
+   * specifically for our grid coordinates. The Vector2 class comes with its `Vector2.clamp()` method,
+   * but it doesn't work the same way: it limits the vector's length instead of clamping each of the
+   * vector's components individually. That's why we need to code a new method.
+   */
+  public Vector2 Clamp(Vector2 gridPosition) {
+    Vector2 temp = new Vector2(gridPosition.x, gridPosition.y);
+    temp.x = Mathf.Clamp(temp.x, 0, size.x - 1);
+    temp.y = Mathf.Clamp(temp.y, 0, size.y - 1);
+    return temp;
+  }
+
+  /**
+   * Given Vector2 coordinates, calculates and returns the corresponding integer index. You can use
+   * this function to convert 2D coordinates to a 1D array's indices. There are two cases where you
+   * need to convert coordinates like so:
+   * 1. We'll need it for the AStar algorithm, which requires a unique index for each point on the
+   * graph it uses to find a path.
+   * 2. You can use it for performance. More on that below.
+   */
+  public int AsIndex(Vector2 cell) {
+    return (int)(cell.x + (size.x * cell.y));
+  }
 }
 
 /**
