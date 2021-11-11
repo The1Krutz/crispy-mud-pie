@@ -26,14 +26,15 @@ public class Pathfinder : Reference {
   /// <summary>
   /// Returns the path found between `start` and `end` as an array of Vector2 coordinates.
   /// </summary>
-  public Vector2[] CalculatePointPath(Vector2 start, Vector2 end) {
+  public Array<Vector2> CalculatePointPath(Vector2 start, Vector2 end) {
     int startIndex = _grid.AsIndex(start);
     int endIndex = _grid.AsIndex(end);
 
     if (_astar.HasPoint(startIndex) && _astar.HasPoint(endIndex)) {
-      return _astar.GetPointPath(startIndex, endIndex);
+      Vector2[] temp = _astar.GetPointPath(startIndex, endIndex);
+      return new Array<Vector2>(temp);
     } else {
-      return new Vector2[0];
+      return new Array<Vector2>();
     }
   }
 
