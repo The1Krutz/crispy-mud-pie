@@ -2,76 +2,70 @@ using System.Linq;
 using Godot;
 
 /// <summary>
-/// Represents a unit on the game board. The board manages the unit's position inside the game grid.
-/// The unit itself is only a visual representation that moves smoothly in the game world. We use
-/// the tool mode so the skin and skin_offset below update in the editor.
+/// Represents a unit on the game board.
+/// The board manages the unit's position inside the game grid.
+/// The unit itself is only a visual representation that moves smoothly in the game world.
 /// </summary>
 public class Unit : Path2D {
+  // Signals
   [Signal]
   public delegate void WalkFinished();
 
+  // Backing Fields
+  private Texture _skin;
+  private Vector2 _skinOffset;
+  private Vector2 _cell;
+  private bool _isSelected;
+  private bool _isWalking;
+
+  // Private
+  private Sprite _sprite;
+  private AnimationPlayer _animationPlayer;
+  private PathFollow2D _pathFollow;
+
+  // Exports
   [Export]
   public Grid grid;
-
   [Export]
   public int MoveRange = 6;
-
-  private Texture _skin;
   [Export]
   public Texture Skin {
-    get {
-      return _skin;
-    }
-    set {
-      SetSkin(value);
-    }
+    get => _skin;
+    set => SetSkin(value); // keep separate so the async still works
   }
-
-  private Vector2 _skinOffset;
   [Export]
   public Vector2 SkinOffset {
-    get {
-      return _skinOffset;
-    }
-    set {
-      SetSkinOffset(value);
-    }
+    get => _skinOffset;
+    set => SetSkinOffset(value); // keep separate so the async still works
   }
-
   [Export]
   public float MoveSpeed = 600.0f;
 
-  private Vector2 _cell;
+  // Public Fields
   public Vector2 Cell {
-    get {
-      return _cell;
-    }
-    set {
-      SetCell(value);
-    }
+    get => _cell;
+    set => _cell = grid.Clamp(value);
   }
-
-  private bool _isSelected = false;
   public bool IsSelected {
-    get {
-      return _isSelected;
-    }
+    get => _isSelected;
     set {
-      SetIsSelected(value);
+      _isSelected = value;
+      if (IsSelected) {
+        _animationPlayer.Play("selected");
+      } else {
+        _animationPlayer.Play("idle");
+      }
     }
   }
-
-  private bool _isWalking;
   public bool IsWalking {
-    get {
-      return _isWalking;
-    }
+    get => _isWalking;
     set {
-      SetIsWalking(value);
+      _isWalking = value;
+      SetProcess(IsWalking);
     }
   }
 
-  private Sprite _sprite; private AnimationPlayer _animationPlayer; private PathFollow2D _pathFollow;
+  // Lifecycle Hooks
   public override void _Ready() {
     grid = GD.Load<Grid>("res://Grid.tres");
     _sprite = GetNode<Sprite>("PathFollow2D/Sprite");
@@ -98,9 +92,6 @@ public class Unit : Path2D {
     // !debug
   }
 
-  /// <summary>
-  /// When active, move the unit along its curve with the help of the PathFollow2d node
-  /// </summary>
   public override void _Process(float delta) {
     _pathFollow.Offset += MoveSpeed * delta;
 
@@ -115,28 +106,10 @@ public class Unit : Path2D {
     }
   }
 
-  /// <summary>
-  /// When changing the cell value, we don't want to allow coordinates outside the grid, so we clamp them
-  /// </summary>
-  private void SetCell(Vector2 value) {
-    _cell = grid.Clamp(value);
-  }
+  // Private Functions
 
   /// <summary>
-  /// This property toggles playback of the 'selected' animation
-  /// </summary>
-  private void SetIsSelected(bool value) {
-    IsSelected = value;
-    if (IsSelected) {
-      _animationPlayer.Play("selected");
-    } else {
-      _animationPlayer.Play("idle");
-    }
-  }
-
-  /// <summary>
-  /// Both setters here manipulate the unit's Sprite node.
-  /// Here we update the sprite's texture
+  /// Update the sprite texture
   /// </summary>
   private async void SetSkin(Texture value) {
     _skin = value;
@@ -158,13 +131,9 @@ public class Unit : Path2D {
   }
 
   /// <summary>
-  /// controls whether this unit gets processed or not
+  /// Starts walking along a path
   /// </summary>
-  private void SetIsWalking(bool value) {
-    _isWalking = value;
-    SetProcess(IsWalking);
-  }
-
+  /// <param name="path">Grid coordinates that this function converts into map coordinates</param>
   public void WalkAlong(Godot.Collections.Array<Vector2> path) {
     if (path.Count == 0) {
       return;
