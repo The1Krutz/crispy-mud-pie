@@ -1,4 +1,4 @@
-using System;
+using System.Linq;
 using Godot;
 using Godot.Collections;
 
@@ -32,8 +32,19 @@ public class GameBoard : Node2D {
   }
 
   // Public Functions
+  public bool IsOccupied(Vector2 cell) {
+    return _units.ContainsKey(cell);
+  }
+
+  /// <summary>
+  /// Returns an array of cells a given unit can walk using the flood fill algorithm
+  /// </summary>
+  public Array<Vector2> GetWalkableCells(Unit unit) {
+    return FloodFill(unit.Cell, unit.MoveRange);
+  }
 
   // Private Functions
+
   /// <summary>
   /// Clears, and refills the `_units` dictionary with game objects that are on the board.
   /// </summary>
@@ -45,5 +56,48 @@ public class GameBoard : Node2D {
         _units[unit.Cell] = unit;
       }
     }
+  }
+
+  /// <summary>
+  /// Returns an array with all the coordinates of walkable cells based on the `max_distance`.
+  /// </summary>
+  private Array<Vector2> FloodFill(Vector2 cell, int maxDistance) {
+    var arr = new Array<Vector2>();
+    var stack = new Array<Vector2>() { cell };
+
+    while (stack.Count > 0) {
+      // bullshit hack around .Pop()
+      Vector2 current = stack[0];
+      stack.RemoveAt(0);
+
+      if (!_grid.IsWithinBounds(current)) {
+        continue;
+      }
+      if (arr.Contains(current)) {
+        continue;
+      }
+
+      Vector2 difference = (current - cell).Abs();
+      int distance = (int)(difference.x + difference.y);
+
+      if (distance > maxDistance) {
+        continue;
+      }
+
+      arr.Add(current);
+
+      foreach (Vector2 direction in Directions) {
+        Vector2 coordinates = current + direction;
+
+        if (IsOccupied(coordinates)) {
+          continue;
+        }
+        if (arr.Contains(coordinates)) {
+          continue;
+        }
+        stack.Add(coordinates);
+      }
+    }
+    return arr;
   }
 }
