@@ -1,4 +1,3 @@
-using System.Linq;
 using Godot;
 using Godot.Collections;
 
@@ -13,25 +12,6 @@ public class UnitPath : TileMap {
   // Private Fields
   private Pathfinder _pathfinder;
   private Array<Vector2> currentPath;
-
-  // Lifecycle Hooks
-  public override void _Ready() {
-    // debug!
-    Vector2 rectStart = new Vector2(4, 4);
-    Vector2 rectEnd = new Vector2(10, 8);
-
-    Array<Vector2> points = new Array<Vector2>();
-
-    for (int x = 0; x < rectEnd.x - rectStart.x + 1; x++) {
-      for (int y = 0; y < rectEnd.y - rectStart.y + 1; y++) {
-        points.Add(rectStart + new Vector2(x, y));
-      }
-    }
-
-    Initialize(points);
-    Draw(rectStart, new Vector2(8, 7));
-    // !debug
-  }
 
   // Public Functions
 
