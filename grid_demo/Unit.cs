@@ -80,16 +80,6 @@ public class Unit : Path2D {
     if (!Engine.EditorHint) {
       Curve = new Curve2D();
     }
-
-    // debug!
-    var points = new Godot.Collections.Array<Vector2> {
-      new Vector2(2, 2),
-      new Vector2(2, 5),
-      new Vector2(8, 5),
-      new Vector2(8, 7)
-    };
-    WalkAlong(points);
-    // !debug
   }
 
   public override void _Process(float delta) {
