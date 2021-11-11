@@ -9,9 +9,11 @@ public class UnitPath : TileMap {
   [Export]
   public Grid grid;
 
+  // Public Fields
+  public Array<Vector2> CurrentPath;
+
   // Private Fields
   private Pathfinder _pathfinder;
-  private Array<Vector2> currentPath;
 
   // Public Functions
 
@@ -28,9 +30,9 @@ public class UnitPath : TileMap {
   /// </summary>
   public void Draw(Vector2 cellStart, Vector2 cellEnd) {
     Clear();
-    currentPath = _pathfinder.CalculatePointPath(cellStart, cellEnd);
+    CurrentPath = _pathfinder.CalculatePointPath(cellStart, cellEnd);
 
-    foreach (var cell in currentPath) {
+    foreach (var cell in CurrentPath) {
       SetCellv(cell, 0);
     }
 

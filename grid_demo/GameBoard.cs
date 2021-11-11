@@ -1,4 +1,3 @@
-using System.Linq;
 using Godot;
 using Godot.Collections;
 
@@ -16,10 +15,13 @@ public class GameBoard : Node2D {
   // Backing Fields
 
   // Private Fields
-  private Vector2[] Directions = { Vector2.Left, Vector2.Right, Vector2.Up, Vector2.Down };
   private Grid _grid;
-  private Dictionary<Vector2, Unit> _units = new Dictionary<Vector2, Unit>(); // key: position on grid, value: unit reference
   private UnitOverlay _unitOverlay;
+  private UnitPath _unitPath;
+  private Vector2[] Directions = { Vector2.Left, Vector2.Right, Vector2.Up, Vector2.Down };
+  private Dictionary<Vector2, Unit> _units = new Dictionary<Vector2, Unit>(); // key: position on grid, value: unit reference
+  private Unit _activeUnit;
+  private Array<Vector2> _walkableCells = new Array<Vector2>();
 
   // Constructor
 
@@ -28,14 +30,46 @@ public class GameBoard : Node2D {
     // preload / onready
     _grid = GD.Load<Grid>("res://Grid.tres");
     _unitOverlay = GetNode<UnitOverlay>("UnitOverlay");
+    _unitPath = GetNode<UnitPath>("UnitPath");
 
     Reinitialize();
     GD.Print(_units);
   }
 
+  public override void _UnhandledInput(InputEvent @event) {
+    if (_activeUnit != null && @event.IsActionPressed("ui_cancel")) {
+      DeselectActiveUnit();
+      ClearActiveUnit();
+    }
+  }
+
   // Public Functions
+
+  /// <summary>
+  /// Returns `true` if the cell is occupied by a unit.
+  /// </summary>
   public bool IsOccupied(Vector2 cell) {
     return _units.ContainsKey(cell);
+  }
+
+  /// <summary>
+  /// Updates the interactive path's drawing if there's an active and selected unit.
+  /// </summary>
+  public void OnCursorMoved(Vector2 newCell) {
+    if (_activeUnit?.IsSelected == true) {
+      _unitPath.Draw(_activeUnit.Cell, newCell);
+    }
+  }
+
+  /// <summary>
+  /// Selects or moves a unit based on where the cursor is.
+  /// </summary>
+  public void OnCursorAcceptPressed(Vector2 cell) {
+    if (_activeUnit == null) {
+      SelectUnit(cell);
+    } else {
+      MoveActiveUnit(cell);
+    }
   }
 
   /// <summary>
@@ -101,5 +135,56 @@ public class GameBoard : Node2D {
       }
     }
     return arr;
+  }
+
+  /// <summary>
+  /// Selects the unit in the `cell` if there's one there. Sets it as the `_active_unit` and draws
+  /// its walkable cells and interactive move path. The board reacts to the signals emitted by the
+  /// cursor. And it does so by calling functions that select and move a unit.
+  /// </summary>
+  private void SelectUnit(Vector2 cell) {
+    if (!_units.ContainsKey(cell)) {
+      return;
+    }
+
+    _activeUnit = _units[cell];
+    _activeUnit.IsSelected = true;
+    _walkableCells = GetWalkableCells(_activeUnit);
+    _unitOverlay.Draw(_walkableCells);
+    _unitPath.Initialize(_walkableCells);
+  }
+
+  /// <summary>
+  /// Deselects the active unit, clearing the cells overlay and interactive path drawing.
+  /// </summary>
+  private void DeselectActiveUnit() {
+    _activeUnit.IsSelected = false;
+    _unitOverlay.Clear();
+    _unitPath.Stop();
+  }
+
+  /// <summary>
+  /// Clears the reference to the _active_unit and the corresponding walkable cells
+  /// </summary>
+  private void ClearActiveUnit() {
+    _activeUnit = null;
+    _walkableCells.Clear();
+  }
+
+  /// <summary>
+  /// Updates the _units dictionary with the target position for the unit and asks the _active_unit to walk to it.
+  /// </summary>
+  private async void MoveActiveUnit(Vector2 newCell) {
+    if (IsOccupied(newCell) || !_walkableCells.Contains(newCell)) {
+      return;
+    }
+
+    _units.Remove(_activeUnit.Cell);
+    _units[newCell] = _activeUnit;
+    DeselectActiveUnit();
+    _activeUnit.WalkAlong(_unitPath.CurrentPath);
+
+    await ToSignal(_activeUnit, nameof(Unit.WalkFinished));
+    ClearActiveUnit();
   }
 }
