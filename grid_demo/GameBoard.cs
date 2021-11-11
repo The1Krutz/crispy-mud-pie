@@ -19,6 +19,7 @@ public class GameBoard : Node2D {
   private Vector2[] Directions = { Vector2.Left, Vector2.Right, Vector2.Up, Vector2.Down };
   private Grid _grid;
   private Dictionary<Vector2, Unit> _units = new Dictionary<Vector2, Unit>(); // key: position on grid, value: unit reference
+  private UnitOverlay _unitOverlay;
 
   // Constructor
 
@@ -26,6 +27,7 @@ public class GameBoard : Node2D {
   public override void _Ready() {
     // preload / onready
     _grid = GD.Load<Grid>("res://Grid.tres");
+    _unitOverlay = GetNode<UnitOverlay>("UnitOverlay");
 
     Reinitialize();
     GD.Print(_units);
