@@ -1,5 +1,6 @@
 using System.Linq;
 using Godot;
+using Godot.Collections;
 
 /// <summary>
 /// Represents a unit on the game board.
@@ -124,7 +125,7 @@ public class Unit : Path2D {
   /// Starts walking along a path
   /// </summary>
   /// <param name="path">Grid coordinates that this function converts into map coordinates</param>
-  public void WalkAlong(Godot.Collections.Array<Vector2> path) {
+  public void WalkAlong(Array<Vector2> path) {
     if (path.Count == 0) {
       return;
     }
