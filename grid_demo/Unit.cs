@@ -11,18 +11,6 @@ public class Unit : Path2D {
   [Signal]
   public delegate void WalkFinished();
 
-  // Backing Fields
-  private Texture _skin;
-  private Vector2 _skinOffset;
-  private Vector2 _cell;
-  private bool _isSelected;
-  private bool _isWalking;
-
-  // Private
-  private Sprite _sprite;
-  private AnimationPlayer _animationPlayer;
-  private PathFollow2D _pathFollow;
-
   // Exports
   [Export]
   public Grid grid;
@@ -64,6 +52,18 @@ public class Unit : Path2D {
       SetProcess(IsWalking);
     }
   }
+
+  // Backing Fields
+  private Texture _skin;
+  private Vector2 _skinOffset;
+  private Vector2 _cell;
+  private bool _isSelected;
+  private bool _isWalking;
+
+  // Private Fields
+  private Sprite _sprite;
+  private AnimationPlayer _animationPlayer;
+  private PathFollow2D _pathFollow;
 
   // Lifecycle Hooks
   public override void _Ready() {

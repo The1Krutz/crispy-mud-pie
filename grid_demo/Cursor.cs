@@ -11,12 +11,6 @@ public class Cursor : Node2D {
   [Signal]
   public delegate void Moved(Vector2 new_cell);
 
-  // Backing Fields
-  private Vector2 _cell = Vector2.Zero;
-
-  // Private
-  private Timer _timer;
-
   // Exports
   [Export]
   public Grid grid;
@@ -39,6 +33,12 @@ public class Cursor : Node2D {
       _timer.Start();
     }
   }
+
+  // Backing Fields
+  private Vector2 _cell = Vector2.Zero;
+
+  // Private Fields
+  private Timer _timer;
 
   // Lifecycle Hooks
   public override void _Ready() {
