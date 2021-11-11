@@ -6,20 +6,21 @@ using Godot;
 /// access to those values.
 /// </summary>
 public class Grid : Resource {
-  // grid size in rows and columns
+  // Exports
   [Export]
   public Vector2 size = new Vector2(20, 20);
-
-  // size of each cell in pixels
   [Export]
   public Vector2 cellSize = new Vector2(80, 80);
 
-  // half a cell size. This gets used often enough to be worth precalculating
+  // Private Fields
   private Vector2 _halfCellSize;
 
+  // Constructor
   public Grid() {
     _halfCellSize = cellSize / 2;
   }
+
+  // Public Functions
 
   /// <summary>
   /// Returns the position of a cell's center in pixels. We'll place units and have them move

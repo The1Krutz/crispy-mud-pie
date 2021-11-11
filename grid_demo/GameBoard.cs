@@ -6,14 +6,6 @@ using Godot.Collections;
 /// tells whether cells are occupied or not. Units can only move around the grid one at a time.
 /// </summary>
 public class GameBoard : Node2D {
-  // Signals
-
-  // Exports
-
-  // Public Fields
-
-  // Backing Fields
-
   // Private Fields
   private Grid _grid;
   private UnitOverlay _unitOverlay;
@@ -22,8 +14,6 @@ public class GameBoard : Node2D {
   private Dictionary<Vector2, Unit> _units = new Dictionary<Vector2, Unit>(); // key: position on grid, value: unit reference
   private Unit _activeUnit;
   private Array<Vector2> _walkableCells = new Array<Vector2>();
-
-  // Constructor
 
   // Lifecycle Hooks
   public override void _Ready() {

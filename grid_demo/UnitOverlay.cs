@@ -5,20 +5,6 @@ using Godot.Collections;
 /// Draws an overlay over an array of cells
 /// </summary>
 public class UnitOverlay : TileMap {
-  // Signals
-
-  // Exports
-
-  // Public Fields
-
-  // Backing Fields
-
-  // Private Fields
-
-  // Constructor
-
-  // Lifecycle Hooks
-
   // Public Functions
   public void Draw(Array<Vector2> cells) {
     Clear();
@@ -26,6 +12,4 @@ public class UnitOverlay : TileMap {
       SetCellv(cell, 0);
     }
   }
-
-  // Private Functions
 }
